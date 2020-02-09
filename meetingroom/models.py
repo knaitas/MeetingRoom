@@ -7,9 +7,9 @@ class MeetingRoom(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField("Title", max_length=255)
     roomReserved = models.CharField("Room reserved", default="null", max_length=255)
-    fromDate = models.DateTimeField(null=True, blank=True)
-    toDate = models.DateTimeField(null=True, blank=True)
-    employees = models.TextField(blank=True, null=True)
+    fromDate = models.DateTimeField()
+    toDate = models.DateTimeField()
+    employees = models.TextField()
     notes = models.TextField(blank=True, null=True)
     createdAt = models.DateTimeField("Created At", auto_now_add=True)
 

@@ -17,9 +17,9 @@ from .models import MeetingRoom, MeetingRoomInBuilding
 from .serializers import *
 from django.contrib.auth import get_user_model
 
-#To be honest, I never did logging for REST, so I'm green with this
+#To be honest, I never did logging for REST framework, so I'm green with this
 #I do know how to log celery tasks though, so maybe that's something?
-#Always willing to learn, my settings.py have logging settings though
+#Always willing to learn, my settings.py have logging settings, I did some research on it.
 #
 #import logging
 #logger = logging.getLogger(__name__)
@@ -28,6 +28,7 @@ from django.contrib.auth import get_user_model
 class MeetingRoomList(APIView):
 
     #Real-life app would have this and React would send a token
+    #
     #permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
@@ -39,14 +40,15 @@ class MeetingRoomList(APIView):
             nextPage = 1
             previousPage = 1
             if request.GET.get('attendee') != "undefined" and request.GET.get('attendee') != "all":
-                print(request.GET.get('attendee'))
                 reservations = MeetingRoom.objects.filter(employees__contains=request.GET.get('attendee'))
+
+            #Need to refactor this part
             elif request.GET.get('attendee') == "all":
                 reservations = MeetingRoom.objects.all()
             else:
                 reservations = MeetingRoom.objects.all()
             page = request.GET.get('page', 1)
-            paginator = Paginator(reservations, 5)
+            paginator = Paginator(reservations, 20)
             try:
                 data = paginator.page(page)
             except PageNotAnInteger:
@@ -64,15 +66,23 @@ class MeetingRoomList(APIView):
 
     def post(self, request, format=None):
         """
-             Post request to make new meeting room reservations.
+             Create a reservation
         """
-        if "roomReserved" in request.data:
-            room = MeetingRoomInBuilding.objects.get(meetingRoomTitle=request.data["roomReserved"])
-            room.isAvailable = False
-            room.save()
+        #Convert dictionary to string
+        employeesAttending = []
+        for employee in request.data["employees"]:
+            employeesAttending.append(employee["value"])
+        employeesAttending = ', '.join([str(emp) for emp in employeesAttending])
+        request.data["employees"] = employeesAttending
+
         serializer = MeetingRoomSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            if "roomReserved" in request.data:
+                # Make the room unavailable
+                room = MeetingRoomInBuilding.objects.get(meetingRoomTitle=request.data["roomReserved"])
+                room.isAvailable = False
+                room.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -101,8 +111,9 @@ def meeting_room(request, pk):
 @api_view(['GET', 'POST', 'PUT'])
 def meeting_rooms_list(request):
     """
- List  Meeting Rooms in Building, or create a new Meeting Room.
- """
+     List  Meeting Rooms in Building, create a new Meeting Room
+     or delete a meeting room.
+     """
     if request.method == 'GET':
         data = []
         nextPage = 1
@@ -112,7 +123,7 @@ def meeting_rooms_list(request):
         else:
             meetingRoomList = MeetingRoomInBuilding.objects.all()
         page = request.GET.get('page', 1)
-        paginator = Paginator(meetingRoomList, 10)
+        paginator = Paginator(meetingRoomList, 20)
         try:
             data = paginator.page(page)
         except PageNotAnInteger:
@@ -138,13 +149,26 @@ def meeting_rooms_list(request):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'PUT':
-        customer = MeetingRoomInBuilding.objects.get(pk=request.data["pk"])
-        customer.delete()
+        # Delete a meeting room
+        meetingRoom = MeetingRoomInBuilding.objects.get(pk=request.data["pk"])
+        # Delete reservation if the room was reserved
+        try:
+            reservation = MeetingRoom.objects.get(roomReserved=meetingRoom.meetingRoomTitle)
+            reservation.delete()
+        except MeetingRoom.DoesNotExist:
+            pass
+        meetingRoom.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['GET'])
 def employees(request):
+    """
+    List employees.
+
+    To create a new employee, visit the Sign up form on frontend
+    Sign up backend is handled by Rest-Auth
+    """
     User = get_user_model()
     get_employees = User.objects.all()
     serializer = UserSerializer(get_employees, context={'request': request} ,many=True)
