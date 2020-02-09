@@ -5,22 +5,27 @@ Small cloud system I made as a practical test
 ## How to connect:
 
 **ssh knaitas@157.245.32.50**
+Password is given via PM
 
-Power up backend:
+## Power up backend:
 
+```
 source env/bin/activate
 
 cd backend
 
 python manage.py runserver 0.0.0.0:8000
+```
 
 Then open a new terminal
 
 Power up frontend:
 
+``` 
 cd frontend
 
 npm start
+```
 
 Now the server is accessible via browser on: http://157.245.32.50:3000/
 
