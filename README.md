@@ -2,9 +2,9 @@
 
 Small cloud system I made as a practical test
 
-How to connect:
+## How to connect:
 
-ssh knaitas@157.245.32.50
+**ssh knaitas@157.245.32.50**
 
 Power up backend:
 
