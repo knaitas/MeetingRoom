@@ -29,18 +29,18 @@ npm start
 
 Now the server is accessible via browser on: http://157.245.32.50:3000/
 
-Sign up for a new account, go to Login => Sign up
+**Sign up for a new account, go to Login => Sign up
 
-To view reservations click Reservations tab
+**To view reservations click Reservations tab
 
-To create a reservation click Create a Reservation tab
+**To create a reservation click Create a Reservation tab
   - Select a room you want to reserve
   - Think of a reservation title
   - Select date range from - to
   - Select employees that will be attending this meeting
   - Add a note if needed
   
-To view meeting rooms and their availability, go to Meeting Rooms tab
+**To view meeting rooms and their availability, go to Meeting Rooms tab
 
 To create a meeting room go to Create a Meeting Room tab
   - Insert room name, must be unique, cannot have two rooms under the same name.
