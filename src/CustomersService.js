@@ -5,6 +5,7 @@ export default class CustomersService{
 
     constructor(){}
 
+    //Sorry, I copied most of the code from another really cool project I did (ask me about it, I'm sure you will like it ^^)
 
     getCustomers(attendee) {
         const url = `${API_URL}/api/reservations/?attendee=${attendee}`;

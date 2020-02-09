@@ -18,13 +18,11 @@ constructor(props) {
 componentDidMount() {
     var  self  =  this;
     customersService.getMeetingRooms().then(function (result) {
-        console.log(result);
         self.setState({ customers:  result.data, nextPageURL:  result.nextlink})
     });
 }
 handleDelete(e,pk){
     var  self  =  this;
-    console.log(pk)
     customersService.deleteMeetingRoom({pk :  pk}).then(()=>{
         var  newArr  =  self.state.customers.filter(function(obj) {
             return  obj.pk  !==  pk;
@@ -35,8 +33,7 @@ handleDelete(e,pk){
 }
 
 nextPage(){
-    var  self  =  this;
-    console.log(this.state.nextPageURL);        
+    var  self  =  this;        
     customersService.getCustomersByURL(this.state.nextPageURL).then((result) => {
         self.setState({ customers:  result.data, nextPageURL:  result.nextlink})
     });

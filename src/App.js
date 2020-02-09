@@ -29,8 +29,8 @@ class BaseLayout extends React.Component {
 
                 <div className="navbar-nav">
                 <Link  className="nav-item nav-link" onClick={this.props.logout} to="/logout">Logout</Link>
-                <Link className="nav-item nav-link" to="/">Reservations</Link>
-                <Link className="nav-item nav-link" to="/customer">Make a Reservation</Link>
+                <Link className="nav-item nav-link" to="/reservations">Reservations</Link>
+                <Link className="nav-item nav-link" to="/make_reservation">Make a Reservation</Link>
                 <Link className="nav-item nav-link" to="/meeting_rooms">Meeting Rooms</Link>
                 <Link className="nav-item nav-link" to="/create_meeting_rooms">Create a Meeting Room</Link>
                 <Link className="nav-item nav-link" to="/employees">Employees</Link>
@@ -44,9 +44,9 @@ class BaseLayout extends React.Component {
             </nav>  
 
             <div className="content">
-              <Route path="/" exact component={ReservationsList} />
-              <Route path="/customer/:pk"  component={CreateReservation} />
-              <Route path="/customer/" exact component={CreateReservation} />
+              <Route path="/reservations" exact component={ReservationsList} />
+              <Route path="/make_reservation/:pk"  component={CreateReservation} />
+              <Route path="/make_reservation/" exact component={CreateReservation} />
               <Route path="/meeting_rooms/" exact component={MeetingRoomsList} />
               <Route path="/create_meeting_rooms/" exact component={CreateMeetingRoom} />
               <Route path="/employees/" exact component={EmployeeList} />

@@ -3,7 +3,6 @@ import CustomersService from './CustomersService';
 import DatePicker from 'react-date-picker';
 import Select from 'react-select'
 
-
 const customersService = new CustomersService();
 
 class CreateReservation extends Component {
@@ -18,7 +17,6 @@ class CreateReservation extends Component {
           employee: '',
           roomList: [],
           employeeList: [],
-          selectedEmployees: []
         }
       
 
@@ -28,11 +26,10 @@ class CreateReservation extends Component {
       getEmployees = () => {
         var self = this;
         customersService.getEmployees().then(function (result) {
-          console.log(result)
           self.setState({ employeeList:  result})
-      });
-
-      }
+          });
+        }
+        
       onChangeFrom = dateFrom => this.setState({ dateFrom })
       onChangeTo = dateTo => this.setState({ dateTo })
 
@@ -40,14 +37,10 @@ class CreateReservation extends Component {
         this.setState({selectedRoom: event.target.value})
     }
 
-      selectEmployees = (event) => {
-      console.log(event.target.value)
-      this.setState({employee: event.target.value}, () => {
-        this.setState(prevState => ({
-          selectedEmployees: [this.state.employee, ...prevState.selectedEmployees]
-        }))
-      })
-  }
+      selectEmployees = (selectedOption) => {
+        this.setState({employee: selectedOption})
+      }
+
 
       componentDidMount(){
         this.getEmployees();
@@ -57,18 +50,6 @@ class CreateReservation extends Component {
               self.setState({ roomList:  result.data, selectedRoom: result.data[0].meetingRoomTitle})
             }
         });
-        const { match: { params } } = this.props;
-        if(params && params.pk)
-        {
-          customersService.getCustomer(params.pk).then((c)=>{
-            console.log(c)
-            this.refs.title.value = c.title;
-            this.refs.fromDate.value = c.fromDate;
-            this.refs.toDate.value = c.toDate;
-            this.refs.employees.value = c.employees;
-            this.refs.additionalNotes.value = c.notes;
-          })
-        }
       }
 
       handleCreate(){
@@ -77,111 +58,93 @@ class CreateReservation extends Component {
             "title": this.refs.title.value,
             "fromDate": this.state.dateFrom,
             "toDate": this.state.dateTo,
-            "employees": this.state.selectedEmployees.toString(),
+            "employees": this.state.employee,
             "notes": this.refs.additionalNotes.value,
             "roomReserved": this.state.selectedRoom,
         }          
         ).then((result)=>{
-          alert("Customer created!");
+          alert("Reservation Created! Please visit reservations list!");
         }).catch((err)=>{
           alert('There was an error! Please re-check your form.'+ err);
         });
       }
-      handleUpdate(pk){
-        customersService.updateCustomer(
-          {
-            "pk": pk,
-            "title": this.refs.title.value,
-            "fromDate": this.state.dateFrom,
-            "toDate": this.state.dateTo,
-            "employees": this.refs.employees.value,
-            "notes": this.refs.additionalNotes.value
-        }          
-        ).then((result)=>{
-          console.log(result);
-          alert("Customer updated!");
-        }).catch(()=>{
-          alert('There was an error! Please re-check your form.');
-        });
-      }
+      
       handleSubmit(event) {
-        const { match: { params } } = this.props;
-
-        if(params && params.pk){
-          this.handleUpdate(params.pk);
-        }
-        else
-        {
           this.handleCreate();
-        }
-
-        event.preventDefault();
+      
+          event.preventDefault();
       }
 
       render() {
-        return (
-          <form onSubmit={this.handleSubmit}>
-          <div className="form-group">
+        if (this.state.roomList.length === 0){
+          return (
 
-          <div>
-            <label>
-              Select Room:</label>
-            <div>
-                <select id="rooms" onChange={this.changeRoom} value={this.state.selectedRoom}>
-                {this.state.roomList.map(room  =>
-                    <option key={room.id} value={room.meetingRoomTitle}>{room.meetingRoomTitle}</option>
-                )}
-                </select>
-               </div>
-            </div>
+            <div>Sorry, no rooms available, busy season.</div>
+          )
 
-            <label>
-              Title:</label>
-              <input className="form-control" type="text" ref='title' />
-              
-            <div>
-            <label>
-              From:</label>
-              <DatePicker ref="fromDate"
-                onChange={this.onChangeFrom}
-                value={this.state.dateFrom}
-              />
-
-            <label>
-              To:</label>
-              <DatePicker ref="toDate"
-                onChange={this.onChangeTo}
-                value={this.state.dateTo}
-              />
-            </div>
+        } else {
+          return (
+            
+            <form onSubmit={this.handleSubmit}>
+            <div className="form-group">
 
             <div>
-            <label>
-              Select Employee:</label>
-            <div>
-                <select id="employees" onChange={this.selectEmployees} value={this.state.employee}>
-                {this.state.employeeList.map(emp  =>
-                    <option key={emp.id} value={emp.username}>{emp.username}</option>
-                )}
-                </select>
-               </div>
-               {this.state.selectedEmployees}
-            </div>
+              <label>
+                Select Room:</label>
+              <div>
+                  <select id="rooms" onChange={this.changeRoom} value={this.state.selectedRoom}>
+                  {this.state.roomList.map(room  =>
+                      <option key={room.id} value={room.meetingRoomTitle}>{room.meetingRoomTitle}</option>
+                  )}
+                  </select>
+                </div>
+              </div>
 
-            <label>
-              Employees:</label>
-              <input className="form-control" type="text" ref='employees' value={this.state.selectedEmployees} />
+              <label>
+                Title:</label>
+                <input className="form-control" type="text" ref='title' />
+                
+              <div>
+              <label>
+                From:</label>
+                <DatePicker ref="fromDate"
+                  onChange={this.onChangeFrom}
+                  value={this.state.dateFrom}
+                />
 
-            <label>
-              Additional notes:</label>
-              <textarea className="form-control" ref='additionalNotes' ></textarea>
+              <label>
+                To:</label>
+                <DatePicker ref="toDate"
+                  onChange={this.onChangeTo}
+                  value={this.state.dateTo}
+                />
+              </div>
+
+              <div>
+                <label>
+                  Select Employee:</label>
+                    <div>
+                      <Select ref="employees"
+                              onChange={this.selectEmployees} 
+                              className="basic-multi-select" 
+                              isMulti 
+                              options={this.state.employeeList.map(emp => (
+                              {value: emp.username, label: emp.username}
+                          ))}/>
+                    </div>
+              </div>
+
+              <label>
+                Additional notes:</label>
+                <textarea className="form-control" ref='additionalNotes' ></textarea>
 
 
-            <input className="btn btn-primary" type="submit" value="Submit" />
-            </div>
-          </form>
-        );
+              <input className="btn btn-primary" type="submit" value="Submit" />
+              </div>
+            </form>
+          );
       }  
+    }   
 }
 
 export default CreateReservation;

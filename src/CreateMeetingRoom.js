@@ -20,26 +20,12 @@ class CreateMeetingRoom extends Component {
       }
 
       onChangeFrom = dateFrom => this.setState({ dateFrom })
+      
       onChangeTo = dateTo => this.setState({ dateTo })
 
       changeNiche = (event) => {
         this.setState({selectedRoom: event.target.value})
     }
-
-      componentDidMount(){
-        const { match: { params } } = this.props;
-        if(params && params.pk)
-        {
-          customersService.getCustomer(params.pk).then((c)=>{
-            console.log(c)
-            this.refs.title.value = c.title;
-            this.refs.fromDate.value = c.fromDate;
-            this.refs.toDate.value = c.toDate;
-            this.refs.employees.value = c.employees;
-            this.refs.additionalNotes.value = c.notes;
-          })
-        }
-      }
 
       handleCreate(){
         customersService.createMeetingRoom(
@@ -48,28 +34,14 @@ class CreateMeetingRoom extends Component {
             "roomSize": this.refs.roomSize.value
         }          
         ).then((result)=>{
-          alert("Customer created!");
+          //In real app I would add a toaster and push to meeting room list url
+          alert("Meeting Room Created! Please visit meeting room list");
         }).catch((err)=>{
           alert('There was an error! ' + err);
         });
       }
-      handleUpdate(pk){
-        customersService.updateCustomer(
-          {
-            "pk": pk,
-            "title": this.refs.title.value,
-            "fromDate": this.state.dateFrom,
-            "toDate": this.state.dateTo,
-            "employees": this.refs.employees.value,
-            "notes": this.refs.additionalNotes.value
-        }          
-        ).then((result)=>{
-          console.log(result);
-          alert("Customer updated!");
-        }).catch(()=>{
-          alert('There was an error! Please re-check your form.');
-        });
-      }
+     
+
       handleSubmit(event) {
         const { match: { params } } = this.props;
 

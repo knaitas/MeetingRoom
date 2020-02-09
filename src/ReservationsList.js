@@ -20,7 +20,6 @@ constructor(props) {
 componentDidMount() {
     var  self  =  this;
     customersService.getCustomers().then(function (result) {
-        console.log(result);
         self.setState({ customers:  result.data, nextPageURL:  result.nextlink})
     });
 
@@ -31,9 +30,9 @@ componentDidMount() {
     });
 }
 
-//selectedRoom: result.data[0].meetingRoomTitle}
-
 handleDelete(e, pk){
+    {/*One way to delete rows in frontend is by removing objects from array in frontend (Client's side) 
+    much faster and more efficient for applications that handle millions of users*/}
     var  self  =  this;
     customersService.deleteCustomer({pk :  pk}).then(()=>{
         var  newArr  =  self.state.customers.filter(function(obj) {
@@ -45,8 +44,7 @@ handleDelete(e, pk){
 }
 
 nextPage(){
-    var  self  =  this;
-    console.log(this.state.nextPageURL);        
+    var  self  =  this;      
     customersService.getCustomersByURL(this.state.nextPageURL).then((result) => {
         self.setState({ customers:  result.data, nextPageURL:  result.nextlink})
     });
@@ -55,7 +53,6 @@ nextPage(){
 loadEmployeeReservations(attendee){
     var  self  =  this;
     customersService.getCustomers(attendee).then(function (result) {
-        console.log(result)
         self.setState({ customers:  result.data, nextPageURL:  result.nextlink})
     });
 }
@@ -105,7 +102,7 @@ render() {
                 <td>{c.notes}</td>
                 <td>{c.createdAt}</td>
                 <td>
-                <button  onClick={(e)=>  this.handleDelete(e,c.pk) }> Cancel reservation</button>
+                <button className="btn btn-primary" onClick={(e)=>  this.handleDelete(e, c.pk) }> Cancel reservation</button>
                 </td>
             </tr>)}
             </tbody>
