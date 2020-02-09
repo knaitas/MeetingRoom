@@ -9,7 +9,7 @@ from rest_framework import status
 #
 #from rest_framework.permissions import IsAuthenticated
 #
-#For the sake of simplicity, I'm only checking authentication in React
+#For the sake of simplicity, I'm only checking authentication in React once on logging in and signing up
 
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -17,13 +17,21 @@ from .models import MeetingRoom, MeetingRoomInBuilding
 from .serializers import *
 from django.contrib.auth import get_user_model
 
-#To be honest, I never did logging for REST framework, so I'm green with this
+#To be honest, I never did logging for REST framework
 #I do know how to log celery tasks though, so maybe that's something?
 #Always willing to learn, my settings.py have logging settings, I did some research on it.
 #
 #import logging
 #logger = logging.getLogger(__name__)
 #logger.error('Error')
+
+def convert_dict_to_string(dict):
+    # Convert dictionary to string
+    employeesAttending = []
+    for employee in dict:
+        employeesAttending.append(employee["value"])
+    employeesAttending = ', '.join([str(emp) for emp in employeesAttending])
+    return employeesAttending
 
 class MeetingRoomList(APIView):
 
@@ -41,10 +49,6 @@ class MeetingRoomList(APIView):
             previousPage = 1
             if request.GET.get('attendee') != "undefined" and request.GET.get('attendee') != "all":
                 reservations = MeetingRoom.objects.filter(employees__contains=request.GET.get('attendee'))
-
-            #Need to refactor this part
-            elif request.GET.get('attendee') == "all":
-                reservations = MeetingRoom.objects.all()
             else:
                 reservations = MeetingRoom.objects.all()
             page = request.GET.get('page', 1)
@@ -68,12 +72,8 @@ class MeetingRoomList(APIView):
         """
              Create a reservation
         """
-        #Convert dictionary to string
-        employeesAttending = []
-        for employee in request.data["employees"]:
-            employeesAttending.append(employee["value"])
-        employeesAttending = ', '.join([str(emp) for emp in employeesAttending])
-        request.data["employees"] = employeesAttending
+
+        request.data["employees"] = convert_dict_to_string(request.data["employees"])
 
         serializer = MeetingRoomSerializer(data=request.data)
         if serializer.is_valid():
@@ -108,38 +108,10 @@ def meeting_room(request, pk):
         reservation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-@api_view(['GET', 'POST', 'PUT'])
-def meeting_rooms_list(request):
-    """
-     List  Meeting Rooms in Building, create a new Meeting Room
-     or delete a meeting room.
-     """
-    if request.method == 'GET':
-        data = []
-        nextPage = 1
-        previousPage = 1
-        if request.GET.get('available')=="available":
-            meetingRoomList = MeetingRoomInBuilding.objects.filter(isAvailable=True)
-        else:
-            meetingRoomList = MeetingRoomInBuilding.objects.all()
-        page = request.GET.get('page', 1)
-        paginator = Paginator(meetingRoomList, 20)
-        try:
-            data = paginator.page(page)
-        except PageNotAnInteger:
-            data = paginator.page(1)
-        except EmptyPage:
-            data = paginator.page(paginator.num_pages)
 
-        serializer = MeetingRoomInBuildingSerializer(data,context={'request': request} ,many=True)
-        if data.has_next():
-            nextPage = data.next_page_number()
-        if data.has_previous():
-            previousPage = data.previous_page_number()
-
-        return Response({'data': serializer.data , 'count': paginator.count, 'numpages' : paginator.num_pages, 'nextlink': '/api/meeting_rooms/?page=' + str(nextPage), 'prevlink': '/api/meeting_rooms/?page=' + str(previousPage)})
-
-    elif request.method == 'POST':
+@api_view(['POST', 'PUT'])
+def meeting_room_create_delete(request):
+    if request.method == 'POST':
         if MeetingRoomInBuilding.objects.filter(meetingRoomTitle=request.data['meetingRoomTitle']).exists():
             return Response("Room already exists!", status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -159,6 +131,37 @@ def meeting_rooms_list(request):
             pass
         meetingRoom.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+def meeting_rooms_list(request):
+    """
+     List  Meeting Rooms in Building, create a new Meeting Room
+     or delete a meeting room.
+     """
+    if request.method == 'POST':
+        data = []
+        nextPage = 1
+        previousPage = 1
+        if "available" in request.data:
+            meetingRoomList = MeetingRoomInBuilding.objects.filter(isAvailable=True)
+        else:
+            meetingRoomList = MeetingRoomInBuilding.objects.all()
+        page = request.GET.get('page', 1)
+        paginator = Paginator(meetingRoomList, 20)
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            data = paginator.page(1)
+        except EmptyPage:
+            data = paginator.page(paginator.num_pages)
+
+        serializer = MeetingRoomInBuildingSerializer(data,context={'request': request} ,many=True)
+        if data.has_next():
+            nextPage = data.next_page_number()
+        if data.has_previous():
+            previousPage = data.previous_page_number()
+
+        return Response({'data': serializer.data , 'count': paginator.count, 'numpages' : paginator.num_pages, 'nextlink': '/api/meeting_rooms/?page=' + str(nextPage), 'prevlink': '/api/meeting_rooms/?page=' + str(previousPage)})
 
 
 @api_view(['GET'])
