@@ -19,7 +19,7 @@ python manage.py runserver 0.0.0.0:8000
 
 Then open a new terminal
 
-Power up frontend:
+## Power up frontend:
 
 ``` 
 cd frontend
