@@ -19,6 +19,6 @@ python manage.py test
 To run production tests
 
 ```
-cd tests
-python tests_automated.py
+cd productiontests
+python production_tests.py
 ```
