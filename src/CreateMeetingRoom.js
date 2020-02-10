@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import CustomersService from './CustomersService';
 import DatePicker from 'react-date-picker';
 
-
 const customersService = new CustomersService();
 
 class CreateMeetingRoom extends Component {
