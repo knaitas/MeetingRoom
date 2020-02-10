@@ -1,10 +1,11 @@
 import requests
 import pytz, datetime
+import json
 
 utc = pytz.utc
 api_url = 'http://157.245.32.50:8000'
 
-def get_reservations(attendee = ""):
+def test_get_reservations(attendee = ""):
     if attendee:
         r = requests.get(api_url + '/api/reservations/?attendee=' + attendee)
         assert r.status_code == 200
@@ -12,30 +13,35 @@ def get_reservations(attendee = ""):
         r = requests.get(api_url + '/api/reservations/?attendee=')
         assert r.status_code == 200
 
-def get_meeting_rooms(available = ""):
-    if available:
-        r = requests.get(api_url + '/api/meeting_rooms/?available=' + available)
+def test_get_meeting_rooms(json = ""):
+    if json:
+        r = requests.post(api_url + '/api/meeting_rooms/', data=json)
         assert r.status_code == 200
     else:
-        r = requests.get(api_url + '/api/meeting_rooms/?available=')
+        r = requests.post(api_url + '/api/meeting_rooms/')
         assert r.status_code == 200
 
-def get_employees():
+def test_get_employees():
     r = requests.get(api_url + '/api/employees/')
     assert r.status_code == 201
 
-def make_reservation(json):
-    r = requests.post(api_url + '/api/reservations/', data=json)
-    assert r.status_code == 201
 
-def delete_reservation(reservation_id):
+def test_delete_reservation(reservation_id):
     r = requests.delete(api_url + '/api/reservations/'+str(reservation_id))
     if r.status_code == 404:
         print("Wrong reservation id")
     else:
         assert r.status_code == 204
 
-def create_meeting_room(json):
+def test_make_reservation(json_data):
+    r = requests.post(api_url + '/api/reservations/', data=json_data)
+    assert r.status_code == 201
+    # Delete reservation after creating it
+    j_string = r.text.replace("'", "\"")
+    d = json.loads(j_string)
+    test_delete_reservation(d["pk"])
+
+def test_create_meeting_room(json):
     r = requests.post(api_url + '/api/meeting_rooms_create/', data=json)
     if r.status_code == 400:
         print("Cannot create the same room twice, choose a different room name")
@@ -50,36 +56,37 @@ def test_login(json):
 
 #Test for sign up
 
-def register_account(json):
+def test_register_account(json):
     r = requests.post(api_url + '/rest-auth/registration/', data=json)
     assert r.status_code == 201
 
 
 
 
-#get_reservations()
-#get_meeting_rooms()
-#delete_reservation(49)
-#get_employees()
-"""
-register_account({"username":"username21",
-                  "email": "emailas2@email.com",
+test_get_reservations()
+
+test_get_meeting_rooms()
+
+test_get_employees()
+
+test_register_account({"username":"username212333",
+                  "email": "emailas2222@email.com",
                   "password1": "helouhalou9999",
                   "password2": "helouhalou9999",})
                   
 
-test_login({"username":"tadas",
-            "password":"taduliukas"})
+test_login({"username":"username212333",
+            "password":"helouhalou9999"})
             
-            
-            
-create_meeting_room({"meetingRoomTitle":"Medium room",
+
+
+test_create_meeting_room({"meetingRoomTitle":"Medium room",
                      "roomSize":"20",
                      "isAvailable":True})
                                  
-"""
 
-make_reservation({
+
+test_make_reservation({
                   "title":"test",
                   "fromDate":datetime.datetime.now(tz=utc),
                   "toDate":datetime.datetime.now(tz=utc),

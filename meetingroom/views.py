@@ -26,7 +26,11 @@ from django.contrib.auth import get_user_model
 #logger.error('Error')
 
 def convert_dict_to_string(dict):
-    # Convert dictionary to string
+    """
+    Needed, because React Select package
+    is sending a dictionary
+    """
+
     employeesAttending = []
     for employee in dict:
         employeesAttending.append(employee["value"])
@@ -34,10 +38,12 @@ def convert_dict_to_string(dict):
     return employeesAttending
 
 class MeetingRoomList(APIView):
+    """
+    Real-life app would have this and React would send a token
 
-    #Real-life app would have this and React would send a token
-    #
-    #permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
+    """
+
 
     def get(self, request, *args, **kwargs):
         """
@@ -72,12 +78,13 @@ class MeetingRoomList(APIView):
         """
              Create a reservation
         """
-        print(request.data["employees"])
+
+        # Check if it is a dict (for production tests)
+        # Python Requests package cannot post a list of dicts to django
+        # Because of the x-www-encoded-form default headers
 
         if type(request.data["employees"][0]) is dict:
-            print("is dict")
             request.data["employees"] = convert_dict_to_string(request.data["employees"])
-            print(request.data["employees"])
 
         serializer = MeetingRoomSerializer(data=request.data)
         if serializer.is_valid():
