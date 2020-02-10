@@ -2,6 +2,13 @@
 
 Small cloud system I made as a practical test
 
+### Project is separated into two branches:
+
+- frontend
+- backend
+
+**Select a branch and you will be navigated to the code**
+
 ## How to connect:
 
 **ssh knaitas@157.245.32.50**
