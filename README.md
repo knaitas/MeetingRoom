@@ -20,5 +20,5 @@ To run production tests
 
 ```
 cd tests
-python tests_automated.py
+python production_tests.py
 ```
