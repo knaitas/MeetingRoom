@@ -48,9 +48,9 @@ class MeetingRoomList(APIView):
             nextPage = 1
             previousPage = 1
             if request.GET.get('attendee') != "undefined" and request.GET.get('attendee') != "all":
-                reservations = MeetingRoom.objects.filter(employees__contains=request.GET.get('attendee'))
+                reservations = MeetingRoom.objects.filter(employees__contains=request.GET.get('attendee')).order_by('id')
             else:
-                reservations = MeetingRoom.objects.all()
+                reservations = MeetingRoom.objects.all().order_by('id')
             page = request.GET.get('page', 1)
             paginator = Paginator(reservations, 20)
             try:
@@ -72,7 +72,7 @@ class MeetingRoomList(APIView):
         """
              Create a reservation
         """
-
+        print(request.data)
         request.data["employees"] = convert_dict_to_string(request.data["employees"])
 
         serializer = MeetingRoomSerializer(data=request.data)
@@ -143,9 +143,9 @@ def meeting_rooms_list(request):
         nextPage = 1
         previousPage = 1
         if "available" in request.data:
-            meetingRoomList = MeetingRoomInBuilding.objects.filter(isAvailable=True)
+            meetingRoomList = MeetingRoomInBuilding.objects.filter(isAvailable=True).order_by('id')
         else:
-            meetingRoomList = MeetingRoomInBuilding.objects.all()
+            meetingRoomList = MeetingRoomInBuilding.objects.all().order_by('id')
         page = request.GET.get('page', 1)
         paginator = Paginator(meetingRoomList, 20)
         try:
