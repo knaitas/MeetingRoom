@@ -1,5 +1,4 @@
 import requests
-import json
 import pytz, datetime
 
 utc = pytz.utc
@@ -27,7 +26,6 @@ def get_employees():
 
 def make_reservation(json):
     r = requests.post(api_url + '/api/reservations/', data=json)
-    print(r.text)
     assert r.status_code == 201
 
 def delete_reservation(reservation_id):
@@ -85,7 +83,7 @@ make_reservation({
                   "title":"test",
                   "fromDate":datetime.datetime.now(tz=utc),
                   "toDate":datetime.datetime.now(tz=utc),
-                  "employees": [{"value":"test"}],
+                  "employees": "test, knaitas, tadas",
                   "notes":"bring water",
                   "roomReserved":"Medium room"
                 })

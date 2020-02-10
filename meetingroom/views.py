@@ -72,8 +72,12 @@ class MeetingRoomList(APIView):
         """
              Create a reservation
         """
-        print(request.data)
-        request.data["employees"] = convert_dict_to_string(request.data["employees"])
+        print(request.data["employees"])
+
+        if type(request.data["employees"][0]) is dict:
+            print("is dict")
+            request.data["employees"] = convert_dict_to_string(request.data["employees"])
+            print(request.data["employees"])
 
         serializer = MeetingRoomSerializer(data=request.data)
         if serializer.is_valid():
